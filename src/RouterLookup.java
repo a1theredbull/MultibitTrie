@@ -2,6 +2,8 @@ import java.io.*;
 
 public class RouterLookup
 {
+	Trie trie;
+	
 	public static void main(String[] args)
 	{
 		BufferedReader fileBr = null;
@@ -38,18 +40,22 @@ public class RouterLookup
 		try
 		{
 			String line = null;
-			System.out.print("Creating Trie...");
+			System.out.print("Creating Trie...\n");
+			TrieNode head = new TrieNode(null, null);
+			trie = new Trie(head, stride);
 			int count = 0;
+			
 			while((line = fromFile.readLine()) != null)
 			{
 				String[] ips = line.split(" "); //full IPKey/next hop
 				String[] ip = ips[0].split("/");//IPKey with subnet mask
 				long ipLong = convertIPtoLong(ip[0]);
 				int subnetMask = Integer.parseInt(ip[1]);
-				//just testing bitwise ops
-				System.out.println(Long.toBinaryString(ipLong));
-				System.out.println(Long.toBinaryString(ipLong >> (25 - stride)));
-				if(count++ > 5) break;
+				CustomBitSet key = convertLongtoBitSet(ipLong, subnetMask);
+				
+				trie.insert(key, ips[1], head, 0);
+				
+				if(++count > 1) break;
 			}
 			System.out.print("Finished creating Trie.");
 		}
@@ -75,5 +81,22 @@ public class RouterLookup
 		}
 		
 		return result;
+	}
+	
+	private CustomBitSet convertLongtoBitSet(long value, int mask)
+	{
+		value = value >>> Long.toBinaryString(value).length() - mask; //find better way to shift!!
+		
+		CustomBitSet bits = new CustomBitSet(mask);
+		int index = 0;
+		while (value != 0L)
+		{
+			if (value % 2L != 0)
+				bits.set(index);
+			index++;
+			value = value >>> 1;
+		}
+		
+		return bits;
 	}
 }

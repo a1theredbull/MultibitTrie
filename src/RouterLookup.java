@@ -22,7 +22,7 @@ public class RouterLookup
 				}
 				catch(Exception e)
 				{
-					//DO NOTHING
+					System.err.println("Invalid stride.\n");
 				}
 			}
 			while(stride <= 0 && stride > 5);
@@ -49,15 +49,24 @@ public class RouterLookup
 			{
 				String[] ips = line.split(" "); //full IPKey/next hop
 				String[] ip = ips[0].split("/");//IPKey with subnet mask
-				long ipLong = convertIPtoLong(ip[0]);
 				int subnetMask = Integer.parseInt(ip[1]);
-				CustomBitSet key = convertLongtoBitSet(ipLong, subnetMask);
+				CustomBitSet key = convertIPtoBitSet(ip[0], subnetMask);
+
+				for(int j = key.capacity-1; j >= 0; j--)
+				{
+					if(key.get(j))
+						System.out.print("1");
+					else
+						System.out.print("0");
+				}
+				System.out.println("");
 				
 				trie.insert(key, ips[1], head, 0);
 				
 				if(++count > 1) break;
 			}
-			System.out.print("Finished creating Trie.");
+			System.out.print("Finished creating Trie.\n");
+			System.out.println("Nodes created(including head): " + trie.findNumNodes(trie.head, 1));
 		}
 		catch(IOException e)
 		{
@@ -65,33 +74,46 @@ public class RouterLookup
 		}
 	}
 	
-	private long convertIPtoLong(String ip)
+	private CustomBitSet convertIPtoBitSet(String ip, int mask)
 	{
-		long result = 0;
 		String[] octet = ip.split("\\.");
-		
-		try
+		CustomBitSet fullSet = new CustomBitSet(32);
+		int count = 31;
+
+		for(int i = 0; i < octet.length; i++)
 		{
-			result += Integer.parseInt(octet[3]) + ( Integer.parseInt(octet[2]) * 256) + 
-					(Integer.parseInt(octet[1]) * 65536) + (Integer.parseInt(octet[0]) * 16777216);
+			boolean maskFinished = false;
+			try
+			{
+				CustomBitSet piece = convertIntToBitSet(Integer.parseInt(octet[i]));
+				for(int j = piece.capacity-1; j >= 0; j--)
+				{
+					fullSet.set(count, piece.get(j));
+					if(--count < 32-mask)
+					{
+						maskFinished = true;
+						break;
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			if(maskFinished) break;
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		return result;
+	
+		return fullSet;
 	}
 	
-	private CustomBitSet convertLongtoBitSet(long value, int mask)
+	private CustomBitSet convertIntToBitSet(int value)
 	{
-		value = value >>> Long.toBinaryString(value).length() - mask; //find better way to shift!!
-		
-		CustomBitSet bits = new CustomBitSet(mask);
+		CustomBitSet bits = new CustomBitSet(8);
 		int index = 0;
-		while (value != 0L)
+		while (value != 0)
 		{
-			if (value % 2L != 0)
+			if (value % 2 != 0)
 				bits.set(index);
 			index++;
 			value = value >>> 1;

@@ -2,8 +2,8 @@ import java.util.*;
 
 public class Trie
 {
-	TrieNode head;
-	int stride;
+	public TrieNode head;
+	public int stride;
 	
 	public Trie(TrieNode head, int stride)
 	{
@@ -14,16 +14,7 @@ public class Trie
 	public void insert(CustomBitSet fullKey, String value, TrieNode curr, int offset)
 	{
 		CustomBitSet key = new CustomBitSet(stride);
-		
-		for(int i = fullKey.length() - 1; i >= 0; i--)
-		{
-			if(fullKey.get(i))
-				System.out.print("1");
-			else
-				System.out.print("0");
-		}
-		System.out.println("");
-		
+
 		int fullKeyLength = fullKey.capacity;
 		boolean reachedEnd = false;
 		int toGenerate = 0;
@@ -41,16 +32,16 @@ public class Trie
 		}
 		if(reachedEnd)
 			generateEnd(key, value, toGenerate);
-		
-		for(int i = key.capacity - 1; i >= 0; i--)
+
+		for(int j = key.capacity-1; j >= 0; j--)
 		{
-			if(key.get(i))
+			if(key.get(j))
 				System.out.print("1");
 			else
 				System.out.print("0");
 		}
 		System.out.println("");
-		
+
 		boolean found = false;
 		for(TrieNode node: curr.children)
 		{
@@ -82,6 +73,18 @@ public class Trie
 	public String findValue(CustomBitSet key)
 	{
 		return "TrieNode.value";
+	}
+
+	/*
+	 * Finds number of nodes by recursively incrementing per child.
+	 * Really only used for debugging purposes.
+	 */
+	public int findNumNodes(TrieNode curr, int count)
+	{
+		for(TrieNode child : curr.children)
+			count = findNumNodes(child, count) + 1;
+
+		return count;
 	}
 }
 

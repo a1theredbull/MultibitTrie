@@ -42,23 +42,24 @@ public class Trie
 		}
 		System.out.println("");
 
-		boolean found = false;
 		for(TrieNode node: curr.children)
 		{
-			if(key == node.key) //compare partial key val to val in here
+			if(key.equals(node.key)) //compare partial key val to val in here
 			{
 				curr = node;
-				found = true;
+				insert(fullKey, value, node, offset);
+				return;
 			}
 		}
 		
-		if(!found && offset < fullKeyLength)
+		//no children match keys in current level
+		if(offset < fullKeyLength)
 		{
 			TrieNode child = new TrieNode(key, null);
 			curr.children.add(child);
 			insert(fullKey, value, child, offset);
 		}
-		else if(!found && offset == fullKeyLength)
+		else if(offset == fullKeyLength)
 		{
 			TrieNode child = new TrieNode(key, value);
 			curr.children.add(child);

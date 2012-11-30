@@ -14,7 +14,7 @@ public class Trie
 	public void insert(CustomBitSet fullKey, String value, TrieNode curr, int offset)
 	{
 		CustomBitSet key = new CustomBitSet(stride);
-
+		
 		int fullKeyLength = fullKey.capacity;
 		boolean reachedEnd = false;
 		int toGenerate = 0;
@@ -30,17 +30,9 @@ public class Trie
 			key.set(i, fullKey.get(fullKeyLength - offset - 1));
 			offset++;
 		}
+		
 		if(reachedEnd)
 			generateEnd(key, value, toGenerate);
-
-		for(int j = key.capacity-1; j >= 0; j--)
-		{
-			if(key.get(j))
-				System.out.print("1");
-			else
-				System.out.print("0");
-		}
-		System.out.println("");
 
 		for(TrieNode node: curr.children)
 		{
@@ -59,7 +51,7 @@ public class Trie
 			curr.children.add(child);
 			insert(fullKey, value, child, offset);
 		}
-		else if(offset == fullKeyLength)
+		else if(offset == fullKeyLength || reachedEnd)
 		{
 			TrieNode child = new TrieNode(key, value);
 			curr.children.add(child);
@@ -71,11 +63,41 @@ public class Trie
 		//TODO FIGURE OUT BEST BITSET BINARY COUNTING GENERATION ALGORITHM
 	}
 	
-	public String findValue(CustomBitSet key)
+	public String findValue(CustomBitSet fullKey, TrieNode curr, int offset, String lastVal)
 	{
-		return "TrieNode.value";
+		CustomBitSet key = new CustomBitSet(stride);
+		
+		if(curr.value != null)
+			lastVal = curr.value;
+		
+		int fullKeyLength = fullKey.capacity;
+		for(int i = stride - 1; i >= 0; i--)
+		{
+			key.set(i, fullKey.get(fullKeyLength - offset - 1));
+			offset++;
+		}
+		
+//		for(int i = key.capacity-1; i >= 0; i--)
+//		{
+//			if(key.get(i))
+//				System.out.print("1");
+//			else
+//				System.out.print("0");
+//		}
+//		System.out.println("");
+		
+		for(TrieNode node: curr.children)
+		{
+			if(key.equals(node.key))
+			{
+				curr = node;
+				return findValue(fullKey, curr, offset, lastVal);
+			}
+		}
+		
+		return lastVal;
 	}
-
+	
 	/*
 	 * Finds number of nodes by recursively incrementing per child.
 	 * Really only used for debugging purposes.

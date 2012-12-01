@@ -32,7 +32,16 @@ public class Trie
 		}
 		
 		if(reachedEnd)
-			generateEnd(key, value, toGenerate);
+		{
+			toGenerate = (int)Math.pow(2, toGenerate);
+			for(int i = toGenerate-1; i >= 0; i--)
+			{
+				curr.children.add(new TrieNode((CustomBitSet)key.clone(), value));
+				key.increment();
+			}
+			
+			return;
+		}
 
 		for(TrieNode node: curr.children)
 		{
@@ -58,11 +67,6 @@ public class Trie
 		}
 	}
 	
-	private void generateEnd(CustomBitSet key, String value, int toGenerate)
-	{
-		//TODO FIGURE OUT BEST BITSET BINARY COUNTING GENERATION ALGORITHM
-	}
-	
 	public String findValue(CustomBitSet fullKey, TrieNode curr, int offset, String lastVal)
 	{
 		CustomBitSet key = new CustomBitSet(stride);
@@ -77,23 +81,9 @@ public class Trie
 			offset++;
 		}
 		
-//		for(int i = key.capacity-1; i >= 0; i--)
-//		{
-//			if(key.get(i))
-//				System.out.print("1");
-//			else
-//				System.out.print("0");
-//		}
-//		System.out.println("");
-		
 		for(TrieNode node: curr.children)
-		{
 			if(key.equals(node.key))
-			{
-				curr = node;
-				return findValue(fullKey, curr, offset, lastVal);
-			}
-		}
+				return findValue(fullKey, node, offset, lastVal);
 		
 		return lastVal;
 	}

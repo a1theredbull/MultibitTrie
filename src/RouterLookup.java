@@ -12,19 +12,23 @@ public class RouterLookup
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			System.out.print("Enter key/value file: ");
 			fileBr = new BufferedReader(new FileReader(br.readLine()));
-			System.out.print("Enter stride length(1-4): ");
+			
 			do
 			{
 				try
 				{
+					System.out.print("Enter stride length(1-4): ");
 					stride = Integer.parseInt(br.readLine());
+					
+					if(stride < 1 || stride > 4)
+						System.out.println("Stride not in range.");
 				}
 				catch(Exception e)
 				{
-					System.err.println("Invalid stride.\n");
+					System.err.println("Invalid stride.");
 				}
 			}
-			while(stride <= 0 && stride > 5);
+			while(stride < 1 || stride > 4);
 		}
 		catch(IOException e)
 		{
@@ -62,8 +66,11 @@ public class RouterLookup
 				System.out.println(line + "\t" + val);
 			}
 			
-			System.out.println("\nTotal lookup time: " + total + " nanosec");
-			System.out.println("Average lookup time: " + total/count + " nanosec");
+			System.out.println("\n================= STATS =================");
+			System.out.println("Total lookup time: " + total + " nanosec (" + total/1000000.0 + " ms)");
+			System.out.println("# of lookups: " + count);
+			double avgLookupTime = total/count;
+			System.out.println("Average lookup time: " + avgLookupTime + " nanosec (" + avgLookupTime/1000000.0 + " ms)");
 		}
 		catch(IOException e)
 		{

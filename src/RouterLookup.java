@@ -43,16 +43,27 @@ public class RouterLookup
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		try
 		{
-			System.out.print("Enter IP to lookup: ");
+			System.out.print("Enter list of IPs to lookup: ");
 			BufferedReader fileBr = new BufferedReader(new FileReader(br.readLine()));
 			String line;
+			long start, end, total;
+			int count = 0;
+			total = 0;
+			
 			while((line = fileBr.readLine()) != null)
 			{
+				count++;
 				CustomBitSet key = convertIPtoBitSet(line, 32);
+				start = System.nanoTime();
 				String val = trie.findValue(key, trie.head, 0, null);
+				end = System.nanoTime();
+				total += end-start;
 				
 				System.out.println(line + "\t" + val);
 			}
+			
+			System.out.println("\nTotal lookup time: " + total + " nanosec");
+			System.out.println("Average lookup time: " + total/count + " nanosec");
 		}
 		catch(IOException e)
 		{
